@@ -2,6 +2,7 @@
 @using ProjectOne.Models
 @using System.Linq
 @using System.Collections.Generic
+@using Microsoft.EntityFrameworkCore
 @inject ProjectOne.Data.AppDbContext AppDbContext
 
 
@@ -34,11 +35,6 @@
                                                        orderby l.Title
                                                        select l;
 
-        // Alternativ:
-        // var Links = from l in AppDbContext.Link
-        //            orderby l.Title
-        //            select l;
-
         LinkList = linkQuery.ToList();
         FilteredLinkList = LinkList;
     }
@@ -52,8 +48,10 @@
 
     protected async Task RemoveLink(int linkId)
     {
-        Link deleteId = new Link { ID = linkId };
-        AppDbContext.Link.Remove(deleteId);
+        Link LinkToDelete = new Link() { ID = linkId };
+
+        AppDbContext.Entry(LinkToDelete).State = EntityState.Deleted;
+        // AppDbContext.Link.Remove(LinkToDelete);
         await AppDbContext.SaveChangesAsync();
     }
 
