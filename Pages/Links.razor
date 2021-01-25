@@ -48,13 +48,27 @@
 
     protected async Task RemoveLink(int linkId)
     {
+        // This works, but when I remove the next line it doesn't compile although LinkToDelete isn't used.
         Link LinkToDelete = new Link() { ID = linkId };
 
-        AppDbContext.Entry(LinkToDelete).State = EntityState.Deleted;
+        // AppDbContext.Entry(LinkToDelete).State = EntityState.Deleted;
         // AppDbContext.Link.Remove(LinkToDelete);
-        await AppDbContext.SaveChangesAsync();
+
+
+        var link = await AppDbContext.Link.FindAsync(linkId);
+        if (link == null)
+        {
+        }
+        try
+        {
+            AppDbContext.Link.Remove(link);
+            await AppDbContext.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
     }
-
-
 
 }
