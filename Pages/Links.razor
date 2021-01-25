@@ -1,0 +1,62 @@
+﻿@page "/links"
+@using ProjectOne.Models
+@using System.Linq
+@using System.Collections.Generic
+@inject ProjectOne.Data.AppDbContext AppDbContext
+
+
+<h3>Links</h3>
+
+<div class="linkList">
+    <input type="text" id="filterLinks" class="textInput" @oninput="@FilterList"  />
+
+    @foreach (var aLink in FilteredLinkList)
+    {
+        <p class="link">
+            <a href="@aLink.Url" target="@aLink.Target">@aLink.Title</a>
+            <a href="" @onclick="@(async () => await RemoveLink(@aLink.ID))">Delete</a>
+        </p>
+    }
+</div>
+
+
+@code {
+
+    private string filterBy;
+    private int linkId;
+
+    private IEnumerable<Link> LinkList, FilteredLinkList = new List<Link>();
+
+    protected override void OnInitialized()
+    {
+
+        IQueryable<ProjectOne.Models.Link> linkQuery = from l in AppDbContext.Link
+                                                       orderby l.Title
+                                                       select l;
+
+        // Alternativ:
+        // var Links = from l in AppDbContext.Link
+        //            orderby l.Title
+        //            select l;
+
+        LinkList = linkQuery.ToList();
+        FilteredLinkList = LinkList;
+    }
+
+
+    protected void FilterList(ChangeEventArgs filter)
+    {
+        var filterBy = filter.Value.ToString().ToLower();
+        FilteredLinkList = LinkList.Where(li => li.Title.ToLower().Contains(filterBy) || li.Url.ToLower().Contains(filterBy));
+    }
+
+    protected async Task RemoveLink(int linkId)
+    {
+        Link deleteId = new Link { ID = linkId };
+        AppDbContext.Link.Remove(deleteId);
+        await AppDbContext.SaveChangesAsync();
+    }
+
+
+
+}

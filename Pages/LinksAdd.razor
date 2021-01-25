@@ -1,0 +1,36 @@
+﻿@page "/links/add"
+@using ProjectOne.Models
+@inject ProjectOne.Data.AppDbContext AppDbContext
+@inject NavigationManager NavManager
+
+<h3>Add Link</h3>
+
+
+<EditForm Model="@link" OnValidSubmit="@DoSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="url" @bind-Value="link.Url" />
+    <InputText id="title" @bind-Value="link.Title" />
+    <InputText id="target" @bind-Value="link.Target" />
+    <button type="submit">Submit</button>
+</EditForm>
+
+
+@code {
+    private string url;
+    private string title;
+    private string target;
+    private Link link = new Link();
+
+
+
+    protected void DoSubmit()
+    {
+        AppDbContext.Link.AddAsync(link);
+        AppDbContext.SaveChangesAsync();
+        NavManager.NavigateTo("/links");
+    }
+
+
+}
